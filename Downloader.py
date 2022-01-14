@@ -10,6 +10,9 @@ class Downloader:
         self.root = root
 
         self.root.title("YouTube Video Downloader")
+
+        root.tk.call("source", "sun-valley.tcl")
+        root.tk.call('set_theme', "light")
         
         self.frame = ttk.Frame(root)
         self.frame['padding'] = 5
@@ -75,7 +78,7 @@ class Downloader:
 
         #creating button
         self.downloadButton = ttk.Button(self.frame, text='Download', command = self.downloadVideo)
-        self.downloadButton.grid(row = 5, column = 4, ipadx=15, ipady= 10) #ipadx and ipady add pixels inside of the function
+        self.downloadButton.grid(row = 10, column = 4, ipadx=15, ipady= 10) #ipadx and ipady add pixels inside of the function
 
         #Creating progess label
         self.progressText = ttk.Label(self.frame, text= "Input a YouTube video URL to download above, and a file path (any invalid path puts the video in the current working directory) below.")
@@ -107,8 +110,10 @@ class Downloader:
         self.audioDownloadTypeLabel = ttk.Label(self.frame, text = "Audio Download Type", font = "helvetica 8 bold")
         self.audioDownloadTypeLabel.grid(row = 5, column = 3)
 
-        #Creating resolution radio buttons
+        #Creating radio button selections for each category for video download customization
         self.createResolutionChoices()
+        self.createVideoDownloadChoices()
+        self.createAudioDownloadOptions()
 
     def getStream(self):
         if (self.audioOnly == "video"):
@@ -135,3 +140,35 @@ class Downloader:
         for i in (self.resolutionRadioButtons):
             i.grid(column = 1, row = tempRowCounter)
             tempRowCounter +=1
+
+    def createVideoDownloadChoices(self):
+        self.videoDownloadType = StringVar(value = "mp4")
+
+        #Created a variable and assigned a default value, now creating radio buttons
+
+        self.videoDownloadTypeMP4 = ttk.Radiobutton(self.frame, text= "MP4", variable = self.videoDownloadType, value="mp4")
+        self.videoDownloadTypeWEBM = ttk.Radiobutton(self.frame, text="WebM", variable = self.videoDownloadType, value="webm")
+        self.videoDownloadTypeAVI = ttk.Radiobutton(self.frame, text = "AVI", variable = self.videoDownloadType, value = "avi")
+
+        self.videoDownloadTypes = [self.videoDownloadTypeMP4, self.videoDownloadTypeWEBM, self.videoDownloadTypeAVI]
+
+        tempRowCounter = 6
+        for i in self.videoDownloadTypes:
+            i.grid(column = 2, row = tempRowCounter)
+            tempRowCounter += 1
+
+    def createAudioDownloadOptions(self):
+        self.audioDownloadType = StringVar(value = "mp3")
+
+        #Now creatin radio buttons with the above variable
+
+        self.audioDownloadTypeMP3 = ttk.Radiobutton(self.frame, text= "MP3", variable = self.audioDownloadType, value = "mp3")
+        self.audioDownloadTypeWAV = ttk.Radiobutton(self.frame, text = "WAV", variable = self.audioDownloadType, value = "wav")
+        self.audioDownloadTypeAAC = ttk.Radiobutton(self.frame, text="AAC", variable = self.audioDownloadType, value = "aac")
+
+        self.audioDownloadTypeButtons = [self.audioDownloadTypeMP3, self.audioDownloadTypeWAV, self.audioDownloadTypeAAC]
+
+        tempRowCounter = 6
+        for i in self.audioDownloadTypeButtons:
+            i.grid(column = 3, row = tempRowCounter)
+            tempRowCounter += 1
