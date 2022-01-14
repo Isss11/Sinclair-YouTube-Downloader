@@ -107,8 +107,31 @@ class Downloader:
         self.audioDownloadTypeLabel = ttk.Label(self.frame, text = "Audio Download Type", font = "helvetica 8 bold")
         self.audioDownloadTypeLabel.grid(row = 5, column = 3)
 
+        #Creating resolution radio buttons
+        self.createResolutionChoices()
+
     def getStream(self):
         if (self.audioOnly == "video"):
             self.ytStream = self.yt.streams.filter(progressive=True, res=self.resolutionType.get()).first() #chooses streams with given resolution and has to be progressive
         else:
             self.ytStream = self.yt.streams.filter(only_audio=True, file_extension="mp4").first() #if audio only this happens
+
+    def createResolutionChoices(self): #this was created to simplify the other widget drawing functions
+        self.resolutionType = StringVar(value="720p")
+
+        #Created the variable and assigned it by default to 720p - now creating the buttons
+
+        self.resolutionType144 = ttk.Radiobutton(self.frame, text="144p", variable = self.resolutionType, value = "144p")
+        self.resolutionType240 = ttk.Radiobutton(self.frame, text="240p", variable = self.resolutionType, value = "240p")
+        self.resolutionType360 = ttk.Radiobutton(self.frame, text="360p", variable = self.resolutionType, value = "360p")
+        self.resolutionType480 = ttk.Radiobutton(self.frame, text="480p", variable = self.resolutionType, value = "480p")
+        self.resolutionType720 = ttk.Radiobutton(self.frame, text="720p", variable = self.resolutionType, value = "720p")
+
+        self.resolutionRadioButtons = [self.resolutionType144, self.resolutionType240, self.resolutionType360, self.resolutionType480, self.resolutionType720]
+
+        #stored the radiobuttons in a list to more modularly control them with drawing and such
+
+        tempRowCounter = 6
+        for i in (self.resolutionRadioButtons):
+            i.grid(column = 1, row = tempRowCounter)
+            tempRowCounter +=1
