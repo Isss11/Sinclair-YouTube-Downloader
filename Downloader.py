@@ -61,64 +61,54 @@ class Downloader:
 
     def drawProgram(self): #Just created this program so __init__ wasn't too cluttered
         self.title = ttk.Label(self.frame, text = 'Sinclair YouTube Downloader', font= 'Helvetica 14 bold')
-        self.title.grid(row = 0)
+        self.title.grid(row = 0, columnspan = 5)
 
         #creating entry object for the YouTube video link
         self.link = StringVar()
         self.linkEntry = ttk.Entry(self.frame, textvariable=self.link, width= 125)
-        self.linkEntry.grid(row = 1, sticky=(W, N)) #Want the entry object to stick to the left
+        self.linkEntry.grid(row = 1, sticky=(W, N), columnspan=5) #Want the entry object to stick to the left
 
         #Creating entry object for the file path link, with a progress label
         self.filePath = StringVar()
         self.filePathEntry = ttk.Entry(self.frame, textvariable=self.filePath, width= 125)
-        self.filePathEntry.grid(row = 3, sticky=(W, N)) 
+        self.filePathEntry.grid(row = 3, column=0, sticky=(W, N), columnspan=5) 
 
         #creating button
         self.downloadButton = ttk.Button(self.frame, text='Download', command = self.downloadVideo)
-        self.downloadButton.grid(row = 2, column = 3, ipadx=15, ipady= 10, padx = 10, sticky=S) #ipadx and ipady add pixels inside of the function
+        self.downloadButton.grid(row = 5, column = 4, ipadx=15, ipady= 10) #ipadx and ipady add pixels inside of the function
 
         #Creating progess label
         self.progressText = ttk.Label(self.frame, text= "Input a YouTube video URL to download above, and a file path (any invalid path puts the video in the current working directory) below.")
-        self.progressText.grid(row = 2)
+        self.progressText.grid(row = 2, column=0, columnspan = 5)
 
         #Creating label indicating youtube video selections
         self.selectionsLabel = ttk.Label(self.frame, text="Select Download Options:", font= 'Helvetica 11 bold')
-        self.selectionsLabel.grid(row = 4, column= 0, sticky="W", pady= 5)
+        self.selectionsLabel.grid(row = 4, columnspan=5)
+
+        #Creating a label for the checkbutton created for audio only
+        self.audioOnlyLabel = ttk.Label(self.frame, text="Audio/Video", font="helvetica 9 bold")
+        self.audioOnlyLabel.grid(row = 5, column=0)
 
         #Creating checkButton to determien audio only as opposed to video
         self.audioOnly = StringVar(value="video")
-        self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video', command=self.updateVideoOptions)
+        self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video')
 
-        self.checkAudioOnly.grid(row=5, column=0, sticky="W")
+        self.checkAudioOnly.grid(row=6, column=0)
 
-        self.updateVideoOptions() #Adds video options
+        #Creating Label for resolution choices
+        self.resolutionChoiceLabel = ttk.Label(self.frame, text="Resolution", font="helvetica 8 bold")
+        self.resolutionChoiceLabel.grid(row=5, column = 1)
+
+        #Creating Label for Video Download Choices
+        self.videoDownloadTypeLabel = ttk.Label(self.frame, text = "Video Download Type", font = "helvetica 8 bold")
+        self.videoDownloadTypeLabel.grid(row = 5, column = 2)
+
+        #Creating a label for audio download choices
+        self.audioDownloadTypeLabel = ttk.Label(self.frame, text = "Audio Download Type", font = "helvetica 8 bold")
+        self.audioDownloadTypeLabel.grid(row = 5, column = 3)
 
     def getStream(self):
         if (self.audioOnly == "video"):
             self.ytStream = self.yt.streams.filter(progressive=True, res=self.resolutionType.get()).first() #chooses streams with given resolution and has to be progressive
         else:
             self.ytStream = self.yt.streams.filter(only_audio=True, file_extension="mp4").first() #if audio only this happens
-
-    def updateVideoOptions(self):
-        if (self.audioOnly.get() == "video"):
-            self.resolutionType = StringVar(value="720p")
-
-            self.resolutionType144 = ttk.Radiobutton(self.frame, text="144p", variable=self.resolutionType, value= "144p")
-            self.resolutionType240 = ttk.Radiobutton(self.frame, text="240p", variable=self.resolutionType, value= "240p")
-            self.resolutionType360 = ttk.Radiobutton(self.frame, text="360p", variable=self.resolutionType, value= "360p")
-            self.resolutionType480 = ttk.Radiobutton(self.frame, text="480p", variable=self.resolutionType, value= "480p")
-            self.resolutionType720 = ttk.Radiobutton(self.frame, text="720p", variable=self.resolutionType, value= "720p")
-
-            self.resolutionRadioButtons = [self.resolutionType144, self.resolutionType240, self.resolutionType360, self.resolutionType480, self.resolutionType720]
-
-            self.radioButtonUpdate = 6
-            for i in (self.resolutionRadioButtons):
-                i.grid(row= self.radioButtonUpdate, column = 0, sticky="W")
-                self.radioButtonUpdate = self.radioButtonUpdate + 1
-
-            self.radioButtonUpdate = 6
-        else:
-            for i in (self.resolutionRadioButtons):
-                i.destroy()
-
-            self.radioButtonUpdate = 6
