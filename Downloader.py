@@ -85,7 +85,7 @@ class Downloader:
 
         #Creating checkButton to determien audio only as opposed to video
         self.audioOnly = StringVar(value="video")
-        self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only (mp3)', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video')
+        self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only (mp3)', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video', command = self.disableButtons)
 
         self.checkAudioOnly.grid(row=6, column=0, sticky=W)
 
@@ -122,3 +122,11 @@ class Downloader:
         for i in (self.resolutionRadioButtons):
             i.grid(column = 1, row = tempRowCounter, sticky=W)
             tempRowCounter +=1
+
+    def disableButtons(self): #at the moment, this program disables/enables the resolution buttons
+        if (self.audioOnly.get() == "audioOnly"):
+            for i in (self.resolutionRadioButtons):
+                i.state(['disabled'])
+        else:
+            for i in (self.resolutionRadioButtons):
+                i.state(['!disabled'])
