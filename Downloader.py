@@ -40,10 +40,7 @@ class Downloader:
         self.outFile = self.ytStream.download(self.filePath) #still downloads with an empty string -- just in the current working directory
 
         if (self.audioOnly.get() == "audioOnly"):
-            # https://www.geeksforgeeks.org/download-video-in-mp3-format-using-pytube/
-            base, ext = os.path.splitext(self.outFile) #renames the output file to an mp3
-            new_file = base + '.mp3'
-            os.rename(self.outFile, new_file)
+            self.changeAudioFileExtension() #this will change the kind of file that is produced for the user
 
         self.progressText.configure(text= "Your video has finished downloading!")
         self.frame.update()
@@ -85,7 +82,7 @@ class Downloader:
 
         #Creating checkButton to determien audio only as opposed to video
         self.audioOnly = StringVar(value="video")
-        self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only (mp3)', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video', command = self.disableButtons)
+        self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video', command = self.disableButtons)
 
         self.checkAudioOnly.grid(row=6, column=0, sticky=W)
 
@@ -93,8 +90,15 @@ class Downloader:
         self.resolutionChoiceLabel = ttk.Label(self.frame, text="Resolution", font="helvetica 8 bold")
         self.resolutionChoiceLabel.grid(row=5, column = 1, sticky = W)
 
-        #Creating radio button selections for each category for video download customization
+        #Creating Label for audio extension choices
+        self.resolutionChoiceLabel = ttk.Label(self.frame, text="Audio Extension", font="helvetica 8 bold")
+        self.resolutionChoiceLabel.grid(row=5, column = 2, sticky = W)
+
+        #Creating radio button selections for each category for video download customization and disables proper buttons
         self.createResolutionChoices()
+        self.createAudioDownloadOptions()
+        self.disableButtons()
+
 
     def getStream(self):
         if (self.audioOnly.get() == "video"):
@@ -123,10 +127,37 @@ class Downloader:
             i.grid(column = 1, row = tempRowCounter, sticky=W)
             tempRowCounter +=1
 
-    def disableButtons(self): #at the moment, this program disables/enables the resolution buttons
+    def createAudioDownloadOptions(self):
+        self.audioDownloadTypeExtension = StringVar(value=".mp3") #initial audio type is mp3
+
+        self.audioTypeMP3 = ttk.Radiobutton(self.frame, text = "MP3", variable= self.audioDownloadTypeExtension, value = ".mp3")
+        self.audioTypeMP4 = ttk.Radiobutton(self.frame, text = "MP4", variable= self.audioDownloadTypeExtension, value = ".mp4")
+        self.audioTypeWAV = ttk.Radiobutton(self.frame, text = "WAV", variable= self.audioDownloadTypeExtension, value = ".wav")
+        self.audioTypeAAC = ttk.Radiobutton(self.frame, text = "AAC", variable= self.audioDownloadTypeExtension, value = ".m4a") #Note how this is not saved as .aac
+
+        self.audioDownloadRadioButtons = [self.audioTypeMP3, self.audioTypeMP4, self.audioTypeWAV, self.audioTypeAAC]
+
+        tempRowCounter = 6
+        for i in (self.audioDownloadRadioButtons):
+            i.grid(column = 2, row = tempRowCounter, sticky=W)
+            tempRowCounter +=1
+
+    def disableButtons(self): #at the moment, this function disables/enables the resolution buttons and the audio download type buttons
         if (self.audioOnly.get() == "audioOnly"):
             for i in (self.resolutionRadioButtons):
                 i.state(['disabled'])
+            
+            for i in (self.audioDownloadRadioButtons):
+                i.state(['!disabled'])
         else:
             for i in (self.resolutionRadioButtons):
                 i.state(['!disabled'])
+
+            for i in (self.audioDownloadRadioButtons):
+                i.state(['disabled'])
+
+    def changeAudioFileExtension(self):
+        # https://www.geeksforgeeks.org/download-video-in-mp3-format-using-pytube/
+        base, ext = os.path.splitext(self.outFile) #renames the output file to an mp3
+        new_file = base + self.audioDownloadTypeExtension.get()
+        os.rename(self.outFile, new_file)
