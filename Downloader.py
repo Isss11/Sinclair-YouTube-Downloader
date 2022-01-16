@@ -50,7 +50,7 @@ class Downloader:
 
     def drawProgram(self): #Just created this program so __init__ wasn't too cluttered
         self.title = ttk.Label(self.frame, text = 'Sinclair YouTube Downloader', font= 'Helvetica 14 bold')
-        self.title.grid(row = 0, columnspan = 4)
+        self.title.grid(row = 0, columnspan = 4, pady=(0, 10))
 
         #creating entry object for the YouTube video link
         self.link = StringVar()
@@ -67,17 +67,17 @@ class Downloader:
         self.streamsButton.grid(row = 11, column = 3, ipadx=10, ipady= 10)
 
         #creating button
-        self.downloadButton = ttk.Button(self.frame, text='Download', command = self.downloadVideo)
+        self.downloadButton = ttk.Button(self.frame, text='Download', command = self.downloadVideo, style="Accent.TButton")
         self.downloadButton.state(['disabled'])
-        self.downloadButton.grid(row = 12, column = 3, ipadx=10, ipady= 10) #ipadx and ipady add pixels inside of the function
+        self.downloadButton.grid(row = 12, column = 3, ipadx=10, ipady= 10, pady = 10) #ipadx and ipady add pixels inside of the function
 
         #Creating progess label
         self.progressText = ttk.Label(self.frame, text= "Input a YouTube video URL to download above, and a file path (any invalid path puts the video in the current working directory) below.")
-        self.progressText.grid(row = 2, column=0, columnspan = 4)
+        self.progressText.grid(row = 2, column=0, columnspan = 4, pady=10)
 
         #Creating label indicating youtube video selections
         self.selectionsLabel = ttk.Label(self.frame, text="Select Download Options:", font= 'Helvetica 11 bold')
-        self.selectionsLabel.grid(row = 4, columnspan=4, sticky=W)
+        self.selectionsLabel.grid(row = 4, columnspan=4, sticky=W, pady = 10)
 
         #Creating a label for the checkbutton created for audio only
         self.audioOnlyLabel = ttk.Label(self.frame, text="Audio/Video", font="helvetica 9 bold")
@@ -104,7 +104,7 @@ class Downloader:
 
     def getStream(self):
         if (self.audioOnly.get() == "video"):
-            self.ytStream = self.yt.streams.filter(progressive=True, res=self.resolutionType.get()).first() #chooses streams with given resolution and has to be progressive
+            self.ytStream = self.yt.streams.filter(progressive=True, res=self.resolutionType.get(), file_extension="mp4").first() #chooses streams with given resolution and has to be progressive
         else:
             self.ytStream = self.yt.streams.filter(only_audio=True).first() #if audio only this happens
 
@@ -172,7 +172,7 @@ class Downloader:
         self.resolutionTypes = ["720p", "480p", "360p", "240p", "144p"]
 
         for i in range(len(self.resolutionTypes)): #the length of resolutionTypes should always be the same as the radioButtons one, so that shouldn't be an issue
-            if (self.yt.streams.filter(progressive=True, res=self.resolutionTypes[i]).first() == None): #checks if there is a stream available for each resolution, and disables the radio button if so
+            if (self.yt.streams.filter(progressive=True, res=self.resolutionTypes[i], file_extension="mp4").first() == None): #checks if there is a stream available for each resolution, and disables the radio button if so
                 self.resolutionRadioButtons[i].state(["disabled"])
             else:
                 self.resolutionType.set(self.resolutionTypes[i])
