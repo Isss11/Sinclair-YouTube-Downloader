@@ -164,12 +164,10 @@ class Downloader:
         os.rename(self.outFile, new_file)
 
     def validateStreams(self): #this essentially determines if certain streams exist (and disables them if they don't)
-        self.resetButtons() #renables all buttons so that only the invalid resolution options for the present video are disabled
+        self.resetResolutionButtons() #renables all buttons so that only the invalid resolution options for the present video are disabled
 
         self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
         self.yt = YouTube(self.link)
-
-        print(self.yt.streams.all())
 
         self.resolutionTypes = ["720p", "480p", "360p", "240p", "144p"]
 
@@ -181,7 +179,7 @@ class Downloader:
 
         self.downloadButton.state(["!disabled"])
 
-    def resetButtons(self): #resets resolution buttons if any of them have been disabled
+    def resetResolutionButtons(self): #resets resolution buttons if any of them have been disabled
         for i in (self.resolutionRadioButtons):
             i.state(['!disabled'])
         
