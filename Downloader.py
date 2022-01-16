@@ -13,7 +13,7 @@ class Downloader:
         self.root.title("YouTube Video Downloader")
 
         root.tk.call("source", "sun-valley.tcl")
-        root.tk.call('set_theme', "light")
+        root.tk.call('set_theme', "dark")
         
         self.frame = ttk.Frame(root)
         self.frame['padding'] = 5
@@ -28,12 +28,8 @@ class Downloader:
         self.downloadButton.state(['disabled']) #While the video is downloading, you cannot press the button again
         self.progressText.configure(text= "Video downloading. Sit tight!")
         self.frame.update()
-
-        self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
                 
         self.filePath = (self.filePathEntry.get()).rstrip()
-
-        self.yt = YouTube(self.link)
 
         self.getStream() #Chooses the stream based on resolution, audio only variable, etc.
         
@@ -50,6 +46,8 @@ class Downloader:
         self.progressText.configure(text= "Input a YouTube video URL to download above, and a file path below.")
         self.frame.update()
 
+        self.downloadButton.state(['disabled']) #disabling this button again in case the user changes the link of video input
+
     def drawProgram(self): #Just created this program so __init__ wasn't too cluttered
         self.title = ttk.Label(self.frame, text = 'Sinclair YouTube Downloader', font= 'Helvetica 14 bold')
         self.title.grid(row = 0, columnspan = 4)
@@ -64,9 +62,14 @@ class Downloader:
         self.filePathEntry = ttk.Entry(self.frame, textvariable=self.filePath, width= 125)
         self.filePathEntry.grid(row = 3, column=0, sticky=(W, N), columnspan=4) 
 
+        #creating stream finder button
+        self.streamsButton = ttk.Button(self.frame, text="Find Streams", command= self.validateStreams)
+        self.streamsButton.grid(row = 11, column = 3, ipadx=10, ipady= 10)
+
         #creating button
         self.downloadButton = ttk.Button(self.frame, text='Download', command = self.downloadVideo)
-        self.downloadButton.grid(row = 11, column = 3, ipadx=10, ipady= 10) #ipadx and ipady add pixels inside of the function
+        self.downloadButton.state(['disabled'])
+        self.downloadButton.grid(row = 12, column = 3, ipadx=10, ipady= 10) #ipadx and ipady add pixels inside of the function
 
         #Creating progess label
         self.progressText = ttk.Label(self.frame, text= "Input a YouTube video URL to download above, and a file path (any invalid path puts the video in the current working directory) below.")
@@ -99,26 +102,24 @@ class Downloader:
         self.createAudioDownloadOptions()
         self.disableButtons()
 
-
     def getStream(self):
         if (self.audioOnly.get() == "video"):
             self.ytStream = self.yt.streams.filter(progressive=True, res=self.resolutionType.get()).first() #chooses streams with given resolution and has to be progressive
         else:
             self.ytStream = self.yt.streams.filter(only_audio=True).first() #if audio only this happens
 
-
     def createResolutionChoices(self): #this was created to simplify the other widget drawing functions
         self.resolutionType = StringVar(value="720p")
 
         #Created the variable and assigned it by default to 720p - now creating the buttons
 
-        self.resolutionType144 = ttk.Radiobutton(self.frame, text="144p", variable = self.resolutionType, value = "144p")
-        self.resolutionType240 = ttk.Radiobutton(self.frame, text="240p", variable = self.resolutionType, value = "240p")
-        self.resolutionType360 = ttk.Radiobutton(self.frame, text="360p", variable = self.resolutionType, value = "360p")
-        self.resolutionType480 = ttk.Radiobutton(self.frame, text="480p", variable = self.resolutionType, value = "480p")
         self.resolutionType720 = ttk.Radiobutton(self.frame, text="720p", variable = self.resolutionType, value = "720p")
+        self.resolutionType480 = ttk.Radiobutton(self.frame, text="480p", variable = self.resolutionType, value = "480p")
+        self.resolutionType360 = ttk.Radiobutton(self.frame, text="360p", variable = self.resolutionType, value = "360p")
+        self.resolutionType240 = ttk.Radiobutton(self.frame, text="240p", variable = self.resolutionType, value = "240p")
+        self.resolutionType144 = ttk.Radiobutton(self.frame, text="144p", variable = self.resolutionType, value = "144p")
 
-        self.resolutionRadioButtons = [self.resolutionType144, self.resolutionType240, self.resolutionType360, self.resolutionType480, self.resolutionType720]
+        self.resolutionRadioButtons = [self.resolutionType720, self.resolutionType480, self.resolutionType360, self.resolutionType240, self.resolutionType144]
 
         #stored the radiobuttons in a list to more modularly control them with drawing and such
 
@@ -161,3 +162,26 @@ class Downloader:
         base, ext = os.path.splitext(self.outFile) #renames the output file to an mp3
         new_file = base + self.audioDownloadTypeExtension.get()
         os.rename(self.outFile, new_file)
+
+    def validateStreams(self): #this essentially determines if certain streams exist (and disables them if they don't)
+        self.resetButtons() #renables all buttons so that only the invalid resolution options for the present video are disabled
+
+        self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
+        self.yt = YouTube(self.link)
+
+        print(self.yt.streams.all())
+
+        self.resolutionTypes = ["720p", "480p", "360p", "240p", "144p"]
+
+        for i in range(len(self.resolutionTypes)): #the length of resolutionTypes should always be the same as the radioButtons one, so that shouldn't be an issue
+            if (self.yt.streams.filter(progressive=True, res=self.resolutionTypes[i]).first() == None): #checks if there is a stream available for each resolution, and disables the radio button if so
+                self.resolutionRadioButtons[i].state(["disabled"])
+            else:
+                self.resolutionType.set(self.resolutionTypes[i])
+
+        self.downloadButton.state(["!disabled"])
+
+    def resetButtons(self): #resets resolution buttons if any of them have been disabled
+        for i in (self.resolutionRadioButtons):
+            i.state(['!disabled'])
+        
