@@ -4,6 +4,7 @@ from tkinter import ttk
 from pytube import YouTube
 from time import sleep
 import winsound
+import os
 
 class Downloader:
     def __init__(self, root):
@@ -24,35 +25,25 @@ class Downloader:
         self.drawProgram()
     #This is the function for when the button is clicked (command callback)
     def downloadVideo(self):
-        try:
-            self.downloadButton.state(['disabled']) #While the video is downloading, you cannot press the button again
-            self.progressText.configure(text= "Video downloading. Sit tight!")
-            self.frame.update()
+        self.downloadButton.state(['disabled']) #While the video is downloading, you cannot press the button again
+        self.progressText.configure(text= "Video downloading. Sit tight!")
+        self.frame.update()
 
-            self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
+        self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
                 
-            self.filePath = (self.filePathEntry.get()).rstrip()
+        self.filePath = (self.filePathEntry.get()).rstrip()
 
-            self.yt = YouTube(self.link)
+        self.yt = YouTube(self.link)
 
-            self.getStream() #Chooses the stream based on resolution, audio only variable, etc.
-        except: 
-            self.progressText.configure(text= "Incorrect input! Make sure you are inputting a proper YouTube URL.")
-            self.frame.update()
-            winsound.MessageBeep(winsound.MB_ICONASTERISK)
-            sleep(2)
-            self.downloadButton.state(['!disabled']) #Button is reinstated
-            return
+        self.getStream() #Chooses the stream based on resolution, audio only variable, etc.
+        
+        self.outFile = self.ytStream.download(self.filePath) #still downloads with an empty string -- just in the current working directory
 
-        try:
-            self.ytStream.download(self.filePath) #still downloads with an empty string -- just in the current working directory
-        except: #I don't think this try/except statement is necessary (when an invalid entry is input, it just creates a new directory in the CWD), but I left it just in case.
-            self.progressText.configure(text= "Either the file path, or the resolution choice is invalid (might not be available).")
-            self.frame.update()
-            winsound.MessageBeep(winsound.MB_ICONASTERISK)
-            sleep(2)
-            self.downloadButton.state(['!disabled']) #Button is reinstated
-            return
+        if (self.audioOnly.get() == "audioOnly"):
+            # https://www.geeksforgeeks.org/download-video-in-mp3-format-using-pytube/
+            base, ext = os.path.splitext(self.outFile) #renames the output file to an mp3
+            new_file = base + '.mp3'
+            os.rename(self.outFile, new_file)
 
         self.progressText.configure(text= "Your video has finished downloading!")
         self.frame.update()
@@ -64,62 +55,53 @@ class Downloader:
 
     def drawProgram(self): #Just created this program so __init__ wasn't too cluttered
         self.title = ttk.Label(self.frame, text = 'Sinclair YouTube Downloader', font= 'Helvetica 14 bold')
-        self.title.grid(row = 0, columnspan = 5)
+        self.title.grid(row = 0, columnspan = 4)
 
         #creating entry object for the YouTube video link
         self.link = StringVar()
         self.linkEntry = ttk.Entry(self.frame, textvariable=self.link, width= 125)
-        self.linkEntry.grid(row = 1, sticky=(W, N), columnspan=5) #Want the entry object to stick to the left
+        self.linkEntry.grid(row = 1, sticky=(W, N), columnspan=4) #Want the entry object to stick to the left
 
         #Creating entry object for the file path link, with a progress label
         self.filePath = StringVar()
         self.filePathEntry = ttk.Entry(self.frame, textvariable=self.filePath, width= 125)
-        self.filePathEntry.grid(row = 3, column=0, sticky=(W, N), columnspan=5) 
+        self.filePathEntry.grid(row = 3, column=0, sticky=(W, N), columnspan=4) 
 
         #creating button
         self.downloadButton = ttk.Button(self.frame, text='Download', command = self.downloadVideo)
-        self.downloadButton.grid(row = 10, column = 4, ipadx=15, ipady= 10) #ipadx and ipady add pixels inside of the function
+        self.downloadButton.grid(row = 11, column = 3, ipadx=10, ipady= 10) #ipadx and ipady add pixels inside of the function
 
         #Creating progess label
         self.progressText = ttk.Label(self.frame, text= "Input a YouTube video URL to download above, and a file path (any invalid path puts the video in the current working directory) below.")
-        self.progressText.grid(row = 2, column=0, columnspan = 5)
+        self.progressText.grid(row = 2, column=0, columnspan = 4)
 
         #Creating label indicating youtube video selections
         self.selectionsLabel = ttk.Label(self.frame, text="Select Download Options:", font= 'Helvetica 11 bold')
-        self.selectionsLabel.grid(row = 4, columnspan=5)
+        self.selectionsLabel.grid(row = 4, columnspan=4, sticky=W)
 
         #Creating a label for the checkbutton created for audio only
         self.audioOnlyLabel = ttk.Label(self.frame, text="Audio/Video", font="helvetica 9 bold")
-        self.audioOnlyLabel.grid(row = 5, column=0)
+        self.audioOnlyLabel.grid(row = 5, column=0, sticky = W)
 
         #Creating checkButton to determien audio only as opposed to video
         self.audioOnly = StringVar(value="video")
-        self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video')
+        self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only (mp3)', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video')
 
-        self.checkAudioOnly.grid(row=6, column=0)
+        self.checkAudioOnly.grid(row=6, column=0, sticky=W)
 
         #Creating Label for resolution choices
         self.resolutionChoiceLabel = ttk.Label(self.frame, text="Resolution", font="helvetica 8 bold")
-        self.resolutionChoiceLabel.grid(row=5, column = 1)
-
-        #Creating Label for Video Download Choices
-        self.videoDownloadTypeLabel = ttk.Label(self.frame, text = "Video Download Type", font = "helvetica 8 bold")
-        self.videoDownloadTypeLabel.grid(row = 5, column = 2)
-
-        #Creating a label for audio download choices
-        self.audioDownloadTypeLabel = ttk.Label(self.frame, text = "Audio Download Type", font = "helvetica 8 bold")
-        self.audioDownloadTypeLabel.grid(row = 5, column = 3)
+        self.resolutionChoiceLabel.grid(row=5, column = 1, sticky = W)
 
         #Creating radio button selections for each category for video download customization
         self.createResolutionChoices()
-        self.createVideoDownloadChoices()
-        self.createAudioDownloadOptions()
 
     def getStream(self):
-        if (self.audioOnly == "video"):
+        if (self.audioOnly.get() == "video"):
             self.ytStream = self.yt.streams.filter(progressive=True, res=self.resolutionType.get()).first() #chooses streams with given resolution and has to be progressive
         else:
-            self.ytStream = self.yt.streams.filter(only_audio=True, file_extension="mp4").first() #if audio only this happens
+            self.ytStream = self.yt.streams.filter(only_audio=True).first() #if audio only this happens
+
 
     def createResolutionChoices(self): #this was created to simplify the other widget drawing functions
         self.resolutionType = StringVar(value="720p")
@@ -138,37 +120,5 @@ class Downloader:
 
         tempRowCounter = 6
         for i in (self.resolutionRadioButtons):
-            i.grid(column = 1, row = tempRowCounter)
+            i.grid(column = 1, row = tempRowCounter, sticky=W)
             tempRowCounter +=1
-
-    def createVideoDownloadChoices(self):
-        self.videoDownloadType = StringVar(value = "mp4")
-
-        #Created a variable and assigned a default value, now creating radio buttons
-
-        self.videoDownloadTypeMP4 = ttk.Radiobutton(self.frame, text= "MP4", variable = self.videoDownloadType, value="mp4")
-        self.videoDownloadTypeWEBM = ttk.Radiobutton(self.frame, text="WebM", variable = self.videoDownloadType, value="webm")
-        self.videoDownloadTypeAVI = ttk.Radiobutton(self.frame, text = "AVI", variable = self.videoDownloadType, value = "avi")
-
-        self.videoDownloadTypes = [self.videoDownloadTypeMP4, self.videoDownloadTypeWEBM, self.videoDownloadTypeAVI]
-
-        tempRowCounter = 6
-        for i in self.videoDownloadTypes:
-            i.grid(column = 2, row = tempRowCounter)
-            tempRowCounter += 1
-
-    def createAudioDownloadOptions(self):
-        self.audioDownloadType = StringVar(value = "mp3")
-
-        #Now creatin radio buttons with the above variable
-
-        self.audioDownloadTypeMP3 = ttk.Radiobutton(self.frame, text= "MP3", variable = self.audioDownloadType, value = "mp3")
-        self.audioDownloadTypeWAV = ttk.Radiobutton(self.frame, text = "WAV", variable = self.audioDownloadType, value = "wav")
-        self.audioDownloadTypeAAC = ttk.Radiobutton(self.frame, text="AAC", variable = self.audioDownloadType, value = "aac")
-
-        self.audioDownloadTypeButtons = [self.audioDownloadTypeMP3, self.audioDownloadTypeWAV, self.audioDownloadTypeAAC]
-
-        tempRowCounter = 6
-        for i in self.audioDownloadTypeButtons:
-            i.grid(column = 3, row = tempRowCounter)
-            tempRowCounter += 1
