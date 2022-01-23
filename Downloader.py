@@ -46,7 +46,7 @@ class Downloader:
         self.progressText.configure(text= "Input a YouTube video URL to download above, and a file path below.")
         self.frame.update()
 
-        self.downloadButton.state(['disabled']) #disabling this button again in case the user changes the link of video input
+        self.disableInputButtons() #disabling these buttons again in case the user changes the link of video input
 
     def drawProgram(self): #Just created this program so __init__ wasn't too cluttered
         self.title = ttk.Label(self.frame, text = 'Sinclair YouTube Downloader', font= 'Helvetica 14 bold')
@@ -68,7 +68,6 @@ class Downloader:
 
         #creating button
         self.downloadButton = ttk.Button(self.frame, text='Download', command = self.downloadVideo, style="Accent.TButton")
-        self.downloadButton.state(['disabled'])
         self.downloadButton.grid(row = 12, column = 3, ipadx=10, ipady= 10, pady = 10) #ipadx and ipady add pixels inside of the function
 
         #Creating progess label
@@ -85,7 +84,7 @@ class Downloader:
 
         #Creating checkButton to determien audio only as opposed to video
         self.audioOnly = StringVar(value="video")
-        self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video', command = self.disableButtons)
+        self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video', command = self.adjustButtons)
 
         self.checkAudioOnly.grid(row=6, column=0, sticky=W)
 
@@ -100,7 +99,7 @@ class Downloader:
         #Creating radio button selections for each category for video download customization and disables proper buttons
         self.createResolutionChoices()
         self.createAudioDownloadOptions()
-        self.disableButtons()
+        self.disableInputButtons()
 
     def getStream(self):
         if (self.audioOnly.get() == "video"):
@@ -120,6 +119,7 @@ class Downloader:
         self.resolutionType144 = ttk.Radiobutton(self.frame, text="144p", variable = self.resolutionType, value = "144p")
 
         self.resolutionRadioButtons = [self.resolutionType720, self.resolutionType480, self.resolutionType360, self.resolutionType240, self.resolutionType144]
+        self.resolutionTypes = ["720p", "480p", "360p", "240p", "144p"]
 
         #stored the radiobuttons in a list to more modularly control them with drawing and such
 
@@ -143,7 +143,7 @@ class Downloader:
             i.grid(column = 2, row = tempRowCounter, sticky=W)
             tempRowCounter +=1
 
-    def disableButtons(self): #at the moment, this function disables/enables the resolution buttons and the audio download type buttons
+    def adjustButtons(self): #at the moment, this function disables/enables the resolution buttons and the audio download type buttons
         if (self.audioOnly.get() == "audioOnly"):
             for i in (self.resolutionRadioButtons):
                 i.state(['disabled'])
@@ -151,8 +151,7 @@ class Downloader:
             for i in (self.audioDownloadRadioButtons):
                 i.state(['!disabled'])
         else:
-            for i in (self.resolutionRadioButtons):
-                i.state(['!disabled'])
+            self.enableStreamButtons() #had to create a custom option for this so that invalid stream buttons don't show up
 
             for i in (self.audioDownloadRadioButtons):
                 i.state(['disabled'])
@@ -163,23 +162,46 @@ class Downloader:
         new_file = base + self.audioDownloadTypeExtension.get()
         os.rename(self.outFile, new_file)
 
-    def validateStreams(self): #this essentially determines if certain streams exist (and disables them if they don't)
-        self.resetResolutionButtons() #renables all buttons so that only the invalid resolution options for the present video are disabled
+    def validateStreams_2(self): #this essentially determines if certain streams exist (and disables them if they don't)
+        self.checkAudioOnly.state(["!disabled"])
+        for i in (self.resolutionRadioButtons):
+            i.state(['!disabled']) #renables all buttons so that only the invalid resolution options for the present video are disabled
 
         self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
         self.yt = YouTube(self.link)
 
-        self.resolutionTypes = ["720p", "480p", "360p", "240p", "144p"]
-
         for i in range(len(self.resolutionTypes)): #the length of resolutionTypes should always be the same as the radioButtons one, so that shouldn't be an issue
             if (self.yt.streams.filter(progressive=True, res=self.resolutionTypes[i], file_extension="mp4").first() == None): #checks if there is a stream available for each resolution, and disables the radio button if so
-                self.resolutionRadioButtons[i].state(["disabled"])
+                self.resolutionRadioButtons[i].state(["disabled"]) #disables all invalid streams
             else:
                 self.resolutionType.set(self.resolutionTypes[i])
 
         self.downloadButton.state(["!disabled"])
 
-    def resetResolutionButtons(self): #resets resolution buttons if any of them have been disabled
+    def validateStreams(self): #this essentially determines if certain streams exist and stores them in a list, to then enable their buttons
+        self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
+        self.yt = YouTube(self.link)
+
+        self.validStreamButtons = []
+
+        for i in range(len(self.resolutionTypes)):
+            if (self.yt.streams.filter(progressive=True, res=self.resolutionTypes[i], file_extension="mp4").first() != None):
+                self.validStreamButtons.append(self.resolutionRadioButtons[i])
+
+        self.enableStreamButtons()
+        self.checkAudioOnly.state(["!disabled"])
+        self.downloadButton.state(["!disabled"])
+
+    def disableInputButtons(self): #this disable all the input buttons
         for i in (self.resolutionRadioButtons):
-            i.state(['!disabled'])
-        
+            i.state(["disabled"])
+
+        for i in (self.audioDownloadRadioButtons):
+            i.state(["disabled"])
+
+        self.downloadButton.state(["disabled"])
+        self.checkAudioOnly.state(["disabled"])
+
+    def enableStreamButtons(self):
+        for i in (self.validStreamButtons):
+            i.state(["!disabled"])
