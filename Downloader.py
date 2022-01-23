@@ -46,7 +46,7 @@ class Downloader:
         self.progressText.configure(text= "Input a YouTube video URL to download above, and a file path below.")
         self.frame.update()
 
-        self.disableInputButtons() #disabling these buttons again in case the user changes the link of video input
+        self.disableInputs() #disabling these buttons again in case the user changes the link of video input
 
     def drawProgram(self): #Just created this program so __init__ wasn't too cluttered
         self.title = ttk.Label(self.frame, text = 'Sinclair YouTube Downloader', font= 'Helvetica 14 bold')
@@ -99,7 +99,7 @@ class Downloader:
         #Creating radio button selections for each category for video download customization and disables proper buttons
         self.createResolutionChoices()
         self.createAudioDownloadOptions()
-        self.disableInputButtons()
+        self.disableInputs()
 
     def getStream(self):
         if (self.audioOnly.get() == "video"):
@@ -162,22 +162,6 @@ class Downloader:
         new_file = base + self.audioDownloadTypeExtension.get()
         os.rename(self.outFile, new_file)
 
-    def validateStreams_2(self): #this essentially determines if certain streams exist (and disables them if they don't)
-        self.checkAudioOnly.state(["!disabled"])
-        for i in (self.resolutionRadioButtons):
-            i.state(['!disabled']) #renables all buttons so that only the invalid resolution options for the present video are disabled
-
-        self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
-        self.yt = YouTube(self.link)
-
-        for i in range(len(self.resolutionTypes)): #the length of resolutionTypes should always be the same as the radioButtons one, so that shouldn't be an issue
-            if (self.yt.streams.filter(progressive=True, res=self.resolutionTypes[i], file_extension="mp4").first() == None): #checks if there is a stream available for each resolution, and disables the radio button if so
-                self.resolutionRadioButtons[i].state(["disabled"]) #disables all invalid streams
-            else:
-                self.resolutionType.set(self.resolutionTypes[i])
-
-        self.downloadButton.state(["!disabled"])
-
     def validateStreams(self): #this essentially determines if certain streams exist and stores them in a list, to then enable their buttons
         self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
         self.yt = YouTube(self.link)
@@ -187,12 +171,14 @@ class Downloader:
         for i in range(len(self.resolutionTypes)):
             if (self.yt.streams.filter(progressive=True, res=self.resolutionTypes[i], file_extension="mp4").first() != None):
                 self.validStreamButtons.append(self.resolutionRadioButtons[i])
+                self.resolutionType.set(self.resolutionTypes[i])
 
         self.enableStreamButtons()
         self.checkAudioOnly.state(["!disabled"])
         self.downloadButton.state(["!disabled"])
+        self.filePathEntry.state(["!disabled"])
 
-    def disableInputButtons(self): #this disable all the input buttons
+    def disableInputs(self): #this disable all the input buttons
         for i in (self.resolutionRadioButtons):
             i.state(["disabled"])
 
@@ -201,6 +187,7 @@ class Downloader:
 
         self.downloadButton.state(["disabled"])
         self.checkAudioOnly.state(["disabled"])
+        self.filePathEntry.state(["disabled"])
 
     def enableStreamButtons(self):
         for i in (self.validStreamButtons):
