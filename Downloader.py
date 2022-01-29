@@ -55,44 +55,36 @@ class Downloader:
         self.linkEntry = ttk.Entry(self.frame, textvariable=self.link, width= 125)
         self.linkEntry.grid(row = 1, sticky=(W, N), columnspan=4) #Want the entry object to stick to the left
 
-        #Creating entry object for the file path link, with a progress label
-        self.filePath = StringVar()
-        self.filePathEntry = ttk.Entry(self.frame, textvariable=self.filePath, width= 125)
-        self.filePathEntry.grid(row = 3, column=0, sticky=(W, N), columnspan=4) 
-
         #creating stream finder button
         self.streamsButton = ttk.Button(self.frame, text="Find Streams", command= self.validateStreams)
-        self.streamsButton.grid(row = 11, column = 3, ipadx=10, ipady= 10)
+        self.streamsButton.grid(row = 10, column = 1, sticky=W)
 
         #creating button
         self.downloadButton = ttk.Button(self.frame, text='Download', command = self.downloadVideo, style="Accent.TButton")
-        self.downloadButton.grid(row = 12, column = 3, ipadx=10, ipady= 10, pady = 10) #ipadx and ipady add pixels inside of the function
+        self.downloadButton.grid(row = 10, column = 2, sticky=W) #ipadx and ipady add pixels inside of the function
 
         #Creating progess label
         self.progressText = ttk.Label(self.frame, text= "Input a YouTube video URL to download above, and a file path (any invalid path puts the video in the current working directory) below.")
         self.progressText.grid(row = 2, column=0, columnspan = 4, pady=10)
 
-        #Creating label indicating youtube video selections
-        self.selectionsLabel = ttk.Label(self.frame, text="Select Download Options:", font= 'Helvetica 11 bold')
-        self.selectionsLabel.grid(row = 4, columnspan=4, sticky=W, pady = 10)
 
         #Creating a label for the checkbutton created for audio only
         self.audioOnlyLabel = ttk.Label(self.frame, text="Audio/Video", font="helvetica 9 bold")
-        self.audioOnlyLabel.grid(row = 5, column=0, sticky = W)
+        self.audioOnlyLabel.grid(row = 3, column=0, sticky = W)
 
         #Creating checkButton to determien audio only as opposed to video
         self.audioOnly = StringVar(value="video")
         self.checkAudioOnly = ttk.Checkbutton(self.frame, text='Audio Only', variable= self.audioOnly, onvalue= 'audioOnly', offvalue= 'video', command = self.adjustButtons)
 
-        self.checkAudioOnly.grid(row=6, column=0, sticky=W)
+        self.checkAudioOnly.grid(row=4, column=0, sticky=W)
 
         #Creating Label for resolution choices
         self.resolutionChoiceLabel = ttk.Label(self.frame, text="Resolution", font="helvetica 8 bold")
-        self.resolutionChoiceLabel.grid(row=5, column = 1, sticky = W)
+        self.resolutionChoiceLabel.grid(row=3, column = 1, sticky = W)
 
         #Creating Label for audio extension choices
         self.resolutionChoiceLabel = ttk.Label(self.frame, text="Audio Extension", font="helvetica 8 bold")
-        self.resolutionChoiceLabel.grid(row=5, column = 2, sticky = W)
+        self.resolutionChoiceLabel.grid(row=3, column = 2, sticky = W)
 
         #Creating radio button selections for each category for video download customization and disables proper buttons
         self.createResolutionChoices()
@@ -100,8 +92,9 @@ class Downloader:
         self.disableInputs()
 
         #Create file path putton
+        self.filePath = StringVar()
         self.filePathButton = ttk.Button(self.frame, text = "Choose Download Folder", command=self.determineFilePath)
-        self.filePathButton.grid(row = 3, column = 4, padx = 15)
+        self.filePathButton.grid(row = 10, column = 0, sticky=W)
 
     def getStream(self):
         if (self.audioOnly.get() == "video"):
@@ -125,7 +118,7 @@ class Downloader:
 
         #stored the radiobuttons in a list to more modularly control them with drawing and such
 
-        tempRowCounter = 6
+        tempRowCounter = 4
         for i in (self.resolutionRadioButtons):
             i.grid(column = 1, row = tempRowCounter, sticky=W)
             tempRowCounter +=1
@@ -140,7 +133,7 @@ class Downloader:
 
         self.audioDownloadRadioButtons = [self.audioTypeMP3, self.audioTypeMP4, self.audioTypeWAV, self.audioTypeAAC]
 
-        tempRowCounter = 6
+        tempRowCounter = 4
         for i in (self.audioDownloadRadioButtons):
             i.grid(column = 2, row = tempRowCounter, sticky=W)
             tempRowCounter +=1
@@ -178,7 +171,6 @@ class Downloader:
         self.enableStreamButtons()
         self.checkAudioOnly.state(["!disabled"])
         self.downloadButton.state(["!disabled"])
-        self.filePathEntry.state(["!disabled"])
 
     def disableInputs(self): #this disable all the input buttons
         for i in (self.resolutionRadioButtons):
@@ -189,7 +181,6 @@ class Downloader:
 
         self.downloadButton.state(["disabled"])
         self.checkAudioOnly.state(["disabled"])
-        self.filePathEntry.state(["disabled"])
 
     def enableStreamButtons(self):
         for i in (self.validStreamButtons):
