@@ -1,10 +1,10 @@
-
 from tkinter import *
 from tkinter import ttk
 from pytube import YouTube
 from time import sleep
 import winsound
 import os
+from tkinter import filedialog
 
 class Downloader:
     def __init__(self, root):
@@ -28,8 +28,6 @@ class Downloader:
         self.downloadButton.state(['disabled']) #While the video is downloading, you cannot press the button again
         self.progressText.configure(text= "Video downloading. Sit tight!")
         self.frame.update()
-                
-        self.filePath = (self.filePathEntry.get()).rstrip()
 
         self.getStream() #Chooses the stream based on resolution, audio only variable, etc.
         
@@ -100,6 +98,10 @@ class Downloader:
         self.createResolutionChoices()
         self.createAudioDownloadOptions()
         self.disableInputs()
+
+        #Create file path putton
+        self.filePathButton = ttk.Button(self.frame, text = "Choose Download Folder", command=self.determineFilePath)
+        self.filePathButton.grid(row = 3, column = 4, padx = 15)
 
     def getStream(self):
         if (self.audioOnly.get() == "video"):
@@ -192,3 +194,7 @@ class Downloader:
     def enableStreamButtons(self):
         for i in (self.validStreamButtons):
             i.state(["!disabled"])
+
+    # https://www.geeksforgeeks.org/file-explorer-in-python-using-tkinter/
+    def determineFilePath(self):
+        self.filePath = str(filedialog.askdirectory())
