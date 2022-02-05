@@ -41,7 +41,7 @@ class Downloader:
         
         winsound.MessageBeep() #Plays beep sound when video is downloaded
         self.downloadButton.state(['!disabled']) #Button is reinstated
-        self.progressText.configure(text= "Input a YouTube video URL to download above, and a file path below.")
+        self.progressText.configure(text= "Input a YouTube video URL to download above.")
         self.frame.update()
 
         self.disableInputs() #disabling these buttons again in case the user changes the link of video input
