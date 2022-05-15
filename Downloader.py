@@ -12,6 +12,7 @@ class Downloader:
         self.root = root
 
         self.root.title("YouTube Video Downloader")
+        self.root.resizable(False, False)
 
         root.tk.call("source", "sun-valley.tcl")
         root.tk.call('set_theme', "dark")
@@ -34,22 +35,26 @@ class Downloader:
 
     #This is the function for when the button is clicked (command callback)
     def downloadVideo(self):
-        self.downloadButton.state(['disabled']) #While the video is downloading, you cannot press the button again
-        self.progressText.configure(text= "Video downloading. Sit tight!")
-        self.frame.update()
+        try: 
+            self.downloadButton.state(['disabled']) #While the video is downloading, you cannot press the button again
+            self.progressText.configure(text= "Video downloading. Sit tight!")
+            self.frame.update()
 
-        self.getStream() #Chooses the stream based on resolution, audio only variable, etc.
-        
-        self.outFile = self.ytStream.download(self.filePath) #still downloads with an empty string -- just in the current working directory
+            self.getStream() #Chooses the stream based on resolution, audio only variable, etc.
+            
+            self.outFile = self.ytStream.download(self.filePath) #still downloads with an empty string -- just in the current working directory
 
-        if (self.audioOnly.get() == "audioOnly"):
-            self.changeAudioFileExtension() #this will change the kind of file that is produced for the user
+            if (self.audioOnly.get() == "audioOnly"):
+                self.changeAudioFileExtension() #this will change the kind of file that is produced for the user
 
-        self.progressText.configure(text= "Your video has finished downloading!")
-        self.frame.update()
+            self.progressText.configure(text= "Your video has finished downloading!")
+            self.frame.update()
+        except:
+            self.progressText.configure(text= "A downloading error has occurred. Please try again.")
+            self.frame.update()
+            sleep(2)
         
         winsound.MessageBeep() #Plays beep sound when video is downloaded
-        self.downloadButton.state(['!disabled']) #Button is reinstated
         self.progressText.configure(text= "Input a YouTube video URL to download above.")
         self.frame.update()
 
@@ -168,19 +173,31 @@ class Downloader:
         os.rename(self.outFile, new_file)
 
     def validateStreams(self): #this essentially determines if certain streams exist and stores them in a list, to then enable their buttons
-        self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
-        self.yt = YouTube(self.link)
+        try:
+            self.link = (self.linkEntry.get()).rstrip() #takes any trailing spaces away
+            self.yt = YouTube(self.link)
 
-        self.validStreamButtons = []
+            self.validStreamButtons = []
 
-        for i in range(len(self.resolutionTypes)):
-            if (self.yt.streams.filter(progressive=True, res=self.resolutionTypes[i], file_extension="mp4").first() != None):
-                self.validStreamButtons.append(self.resolutionRadioButtons[i])
-                self.resolutionType.set(self.resolutionTypes[i])
+            for i in range(len(self.resolutionTypes)):
+                if (self.yt.streams.filter(progressive=True, res=self.resolutionTypes[i], file_extension="mp4").first() != None):
+                    self.validStreamButtons.append(self.resolutionRadioButtons[i])
+                    self.resolutionType.set(self.resolutionTypes[i])
 
-        self.enableStreamButtons()
-        self.checkAudioOnly.state(["!disabled"])
-        self.downloadButton.state(["!disabled"])
+            self.enableStreamButtons()
+            self.checkAudioOnly.state(["!disabled"])
+            self.downloadButton.state(["!disabled"])
+        except: #in case finding a stream doesn't work
+            self.progressText.configure(text= "An error has occurred with finding streams for your requested video. Please try again.")
+            self.disableInputs() #disabling these buttons again in case the user changes the link of video input
+            winsound.MessageBeep() #Plays beep sound when video is downloaded
+            self.frame.update()
+            sleep(2)
+            
+            self.progressText.configure(text= "Input a YouTube video URL to download above.")
+            self.frame.update()
+
+            
 
     def disableInputs(self): #this disable all the input buttons
         for i in (self.resolutionRadioButtons):
@@ -191,6 +208,7 @@ class Downloader:
 
         self.downloadButton.state(["disabled"])
         self.checkAudioOnly.state(["disabled"])
+        self.audioOnly.initialize('video')
 
     def enableStreamButtons(self):
         for i in (self.validStreamButtons):
