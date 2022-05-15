@@ -5,6 +5,7 @@ from time import sleep
 import winsound
 import os
 from tkinter import filedialog
+from threading import *
 
 class Downloader:
     def __init__(self, root):
@@ -23,6 +24,14 @@ class Downloader:
         self.frame.grid(column=0, row=0, sticky=(N, W, E, S))
 
         self.drawProgram()
+
+    #This is the function that does the threading part for the download video function, so we don't get issues with the tkinter screen updates
+    #Source: https://www.geeksforgeeks.org/how-to-use-thread-in-tkinter-python/
+    def downloadVideoThreading(self):
+        #call download video function
+        t1 = Thread(target=self.downloadVideo)
+        t1.start()
+
     #This is the function for when the button is clicked (command callback)
     def downloadVideo(self):
         self.downloadButton.state(['disabled']) #While the video is downloading, you cannot press the button again
@@ -60,11 +69,11 @@ class Downloader:
         self.streamsButton.grid(row = 10, column = 1, sticky=W)
 
         #creating button
-        self.downloadButton = ttk.Button(self.frame, text='Download', command = self.downloadVideo, style="Accent.TButton")
+        self.downloadButton = ttk.Button(self.frame, text='Download', command = self.downloadVideoThreading, style="Accent.TButton")
         self.downloadButton.grid(row = 10, column = 2, sticky=W) #ipadx and ipady add pixels inside of the function
 
         #Creating progess label
-        self.progressText = ttk.Label(self.frame, text= "Input a YouTube video URL to download above, and a file path (any invalid path puts the video in the current working directory) below.")
+        self.progressText = ttk.Label(self.frame, text= "Input a YouTube video URL to download above, and a folder to download your files to.")
         self.progressText.grid(row = 2, column=0, columnspan = 4, pady=10)
 
 
@@ -93,6 +102,7 @@ class Downloader:
 
         #Create file path putton
         self.filePath = StringVar()
+        self.filePath = os.getcwd() #default file path is present working directory
         self.filePathButton = ttk.Button(self.frame, text = "Choose Download Folder", command=self.determineFilePath)
         self.filePathButton.grid(row = 10, column = 0, sticky=W)
 
