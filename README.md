@@ -1,10 +1,13 @@
 # Sinclair-YouTube-Downloader
-This was a program that I created to learn a little about Tkinter and PyTube. It is NOT intended for commercial purposes.
+This was a program that I created to learn about Tkinter and PyTube. It is NOT intended for commercial purposes.
 
-To use it, make sure to include both the sound file and main.py (just download this repository as a zip). Once you have it set-up, it should be fairly self-explanatory how to use it. Keep in mind, that if you prove an invalid file path name, there will be one that is created within the current working directory. You should paste in a file path name similar to the one I provided (I created a folder to only download videos from this app -- this is recommended.
+Sinclair YouTube Downloader is an application that downloads YouTube videos of varying requested file types. Users are asked to provide a link to the video, and can choose different kinds of file download options (such as audio-only file types and resolution choices for videos) to acquire the kind of file they want.
 
-Before Downloading:
-![Screenshot (2302)](https://user-images.githubusercontent.com/89956249/147840049-f4691cac-1316-4192-88b0-83850d926f24.png)
+**Set-Up:**
+To set it up, download these files through the ZIP folder option. The only other thing you may have to do is re-download (and replace the ones in the ZIP folder) the TCL themes [here](https://github.com/rdbende/Sun-Valley-ttk-theme) should they not work on your device. 
 
-After Downloading (right before download button is reactivated):
-![Screenshot (2304)](https://user-images.githubusercontent.com/89956249/147840070-95cae2e6-517c-460f-aa45-dd8da6ed1bc4.png)
+**Before a Link Is Input:**
+![Screenshot (2602)](https://user-images.githubusercontent.com/89956249/168506763-ddc4e846-996f-441a-99a8-42d90c852f2c.png)
+
+**After Link Is Input -- Choosing Download Options:**
+![Screenshot (2602)](https://user-images.githubusercontent.com/89956249/168506950-f4b371f4-a397-4f16-b3ac-92cae8741bbd.png)
