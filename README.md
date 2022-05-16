@@ -10,4 +10,5 @@ To set it up, download these files through the ZIP folder option. The only other
 ![Screenshot (2602)](https://user-images.githubusercontent.com/89956249/168506763-ddc4e846-996f-441a-99a8-42d90c852f2c.png)
 
 **After Link Is Input -- Choosing Download Options:**
-![Screenshot (2602)](https://user-images.githubusercontent.com/89956249/168506950-f4b371f4-a397-4f16-b3ac-92cae8741bbd.png)
+![Screenshot (2603)](https://user-images.githubusercontent.com/89956249/168507093-8b2747f8-2c4a-4c08-8617-1443085ecda2.png)
+
